@@ -2,12 +2,13 @@ import React from 'react';
 import './App.css';
 import { moviesData } from '../moviesData';
 import MovieItem from "./MovieItem";
+import {API_URL, API_KEY_3} from "../utils/api";
 
 class App extends React.Component {
     constructor() {
         super();
         this.state = {
-            movies: moviesData,
+            movies: [],
             moviesWillWatch: []
         };
         //this.removeMovie = this.removeMovie.bind(this);
@@ -18,9 +19,14 @@ class App extends React.Component {
                 <div className='row'>
                     <div className='col-9'>
                         <div className='row'>
+                            <MovieTabs />
                             {this.state.movies.map(movie =>
                                 <div className='col-6 mb-4' key={movie.id}>
-                                    <MovieItem movie={movie} removeMovie={this.removeMovie} addMovieToWatch={this.addMovieToWillWatch}/>
+                                    <MovieItem movie={movie}
+                                               removeMovie={this.removeMovie}
+                                               addToWillWatch={this.addToWillWatch}
+                                               removeWillWatch={this.removeWillWatch}
+                                    />
                                 </div>)}
                         </div>
                     </div>
@@ -31,14 +37,33 @@ class App extends React.Component {
             </div>
         );
     }
+    componentDidMount() {
+        fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}`)
+            .then((response) => response.json())
+            .then((data) => {
+                this.setState({
+                    movies: data.results
+                });
+            })
+            .catch((e) => {
+                throw new Error(e);
+            });
+    }
+
     removeMovie = (movie) => {
         const updatedMovies = this.state.movies.filter( item => item.id !== movie.id);
         this.setState({
             movies: updatedMovies
         });
     };
-    addMovieToWillWatch = (movie) => {
+    addToWillWatch = (movie) => {
         const updatedWillWatch = [...this.state.moviesWillWatch, movie];
+        this.setState({
+            moviesWillWatch: updatedWillWatch
+        });
+    };
+    removeWillWatch = (movie) => {
+        const updatedWillWatch = [...this.state.moviesWillWatch].filter(item => item.id !== movie.id);
         this.setState({
             moviesWillWatch: updatedWillWatch
         });
