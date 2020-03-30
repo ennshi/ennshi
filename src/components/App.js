@@ -1,15 +1,19 @@
 import React from 'react';
-import './App.css';
 import { moviesData } from '../moviesData';
 import MovieItem from "./MovieItem";
 import {API_URL, API_KEY_3} from "../utils/api";
+import {MovieTabs} from "./MovieTabs";
 
 class App extends React.Component {
     constructor() {
         super();
         this.state = {
+            total_pages: 500,
+            total_movies: 0,
+            current_page: 1,
             movies: [],
-            moviesWillWatch: []
+            moviesWillWatch: [],
+            sort_by: 'popularity.desc'
         };
         //this.removeMovie = this.removeMovie.bind(this);
     }
@@ -18,8 +22,12 @@ class App extends React.Component {
             <div className='container'>
                 <div className='row'>
                     <div className='col-9'>
+                        <div className='row mb-4'>
+                            <div className='col-12'>
+                                <MovieTabs sort_by={this.state.sort_by} updateSortBy={this.updateSortBy}/>
+                            </div>
+                        </div>
                         <div className='row'>
-                            <MovieTabs />
                             {this.state.movies.map(movie =>
                                 <div className='col-6 mb-4' key={movie.id}>
                                     <MovieItem movie={movie}
@@ -38,7 +46,13 @@ class App extends React.Component {
         );
     }
     componentDidMount() {
-        fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}`)
+        this.getMovies();
+    }
+    componentDidUpdate() {
+        this.getMovies();
+    }
+    getMovies = () => {
+        fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}&sort_by=${this.state.sort_by}&page=500`)
             .then((response) => response.json())
             .then((data) => {
                 this.setState({
@@ -48,8 +62,7 @@ class App extends React.Component {
             .catch((e) => {
                 throw new Error(e);
             });
-    }
-
+    };
     removeMovie = (movie) => {
         const updatedMovies = this.state.movies.filter( item => item.id !== movie.id);
         this.setState({
@@ -68,6 +81,12 @@ class App extends React.Component {
             moviesWillWatch: updatedWillWatch
         });
     };
+    updateSortBy = (value) => {
+        this.setState({
+            sort_by: value
+        });
+    }
 }
+
 
 export default App;
