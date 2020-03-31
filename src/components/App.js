@@ -3,6 +3,7 @@ import { moviesData } from '../moviesData';
 import MovieItem from "./MovieItem";
 import {API_URL, API_KEY_3} from "../utils/api";
 import {MovieTabs} from "./MovieTabs";
+import {MoviePages} from "./MoviePages";
 
 class App extends React.Component {
     constructor() {
@@ -21,7 +22,7 @@ class App extends React.Component {
         return (
             <div className='container'>
                 <div className='row'>
-                    <div className='col-9'>
+                    <div className='col-12 col-md-9'>
                         <div className='row mb-4'>
                             <div className='col-12'>
                                 <MovieTabs sort_by={this.state.sort_by} updateSortBy={this.updateSortBy}/>
@@ -42,6 +43,12 @@ class App extends React.Component {
                         <p>Will Watch: {this.state.moviesWillWatch.length}</p>
                     </div>
                 </div>
+                <div className='row'>
+                    <MoviePages changePage={this.changePage}
+                                setPage={this.setPage}
+                                cur_page={this.state.current_page}
+                    />
+                </div>
             </div>
         );
     }
@@ -52,7 +59,7 @@ class App extends React.Component {
         this.getMovies();
     }
     getMovies = () => {
-        fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}&sort_by=${this.state.sort_by}&page=500`)
+        fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}&sort_by=${this.state.sort_by}&page=${this.state.current_page}`)
             .then((response) => response.json())
             .then((data) => {
                 this.setState({
@@ -82,10 +89,32 @@ class App extends React.Component {
         });
     };
     updateSortBy = (value) => {
+        this.setPage(1);
         this.setState({
             sort_by: value
         });
-    }
+    };
+
+    setPage = (page) => {
+        if(this.state.current_page !== page) {
+            this.setState({
+                current_page: page
+            });
+        }
+    };
+
+    changePage = (symbol) => {
+        const cur_page = this.state.current_page;
+        if(symbol === '+') {
+            if(cur_page < 500) {
+                this.setPage(cur_page + 1);
+            }
+        } else {
+            if(cur_page > 0) {
+                this.setPage(cur_page-1);
+            }
+        }
+    };
 }
 
 
