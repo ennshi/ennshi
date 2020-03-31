@@ -1,5 +1,4 @@
 import React from 'react';
-import { moviesData } from '../moviesData';
 import MovieItem from "./MovieItem";
 import {API_URL, API_KEY_3} from "../utils/api";
 import {MovieTabs} from "./MovieTabs";
