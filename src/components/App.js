@@ -10,7 +10,6 @@ class App extends React.Component {
         super();
         this.state = {
             total_pages: 500,
-            total_movies: 0,
             current_page: 1,
             movies: [],
             moviesWillWatch: [],
@@ -47,6 +46,7 @@ class App extends React.Component {
                     <MoviePages changePage={this.changePage}
                                 setPage={this.setPage}
                                 cur_page={this.state.current_page}
+                                total_pages={this.state.total_pages}
                     />
                 </div>
             </div>
@@ -55,9 +55,16 @@ class App extends React.Component {
     componentDidMount() {
         this.getMovies();
     }
-    componentDidUpdate() {
-        this.getMovies();
+    // componentDidUpdate(prevState) {
+    //     this.getMovies();
+    // }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        // to be able to see the effect of this.removeMovie
+        if(prevState.current_page !== this.state.current_page) {
+            this.getMovies();
+        }
     }
+
     getMovies = () => {
         fetch(`${API_URL}/discover/movie?api_key=${API_KEY_3}&sort_by=${this.state.sort_by}&page=${this.state.current_page}`)
             .then((response) => response.json())
@@ -71,9 +78,12 @@ class App extends React.Component {
             });
     };
     removeMovie = (movie) => {
-        const updatedMovies = this.state.movies.filter( item => item.id !== movie.id);
+        const {movies, moviesWillWatch} = this.state;
+        const updatedMovies = movies.filter( item => item.id !== movie.id);
+        const updatedWillWatch = moviesWillWatch.length ? moviesWillWatch.filter( item => item.id !== movie.id) : [];
         this.setState({
-            movies: updatedMovies
+            movies: updatedMovies,
+            moviesWillWatch: updatedWillWatch
         });
     };
     addToWillWatch = (movie) => {
@@ -104,14 +114,14 @@ class App extends React.Component {
     };
 
     changePage = (symbol) => {
-        const cur_page = this.state.current_page;
+        const {current_page, total_pages} = this.state;
         if(symbol === '+') {
-            if(cur_page < 500) {
-                this.setPage(cur_page + 1);
+            if(current_page < total_pages) {
+                this.setPage(current_page + 1);
             }
         } else {
-            if(cur_page > 0) {
-                this.setPage(cur_page-1);
+            if(current_page > 0) {
+                this.setPage(current_page-1);
             }
         }
     };

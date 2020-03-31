@@ -2,7 +2,7 @@ import React from "react";
 
 export class MoviePages extends React.Component {
     render() {
-        const {cur_page, setPage, changePage} = this.props;
+        const {cur_page, setPage, changePage, total_pages} = this.props;
         return(
             <div className='col-12 d-flex justify-content-center mb-4'>
                 <ul className="tabs nav nav-pills">
@@ -28,7 +28,7 @@ export class MoviePages extends React.Component {
                     </li>
                     <li className='page-item'>
                         <div className='page-link' onClick={setPage.bind(null, 500)}>
-                            500
+                            {total_pages}
                         </div>
                     </li>
                 </ul>
